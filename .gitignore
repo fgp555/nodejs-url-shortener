@@ -1,0 +1,4 @@
+*data*.json
+*backup*
+*dev*
+/node_modules

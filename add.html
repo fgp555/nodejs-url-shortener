@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label, input {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #shortUrl {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>URL Shortener</h1>
+
+  <form id="shortenForm">
+    <label for="longUrl">Long URL:</label>
+    <input type="url" id="longUrl" name="longUrl" required>
+
+    <label for="customBackHalf">Custom Back-Half (optional):</label>
+    <input type="text" id="customBackHalf" name="customBackHalf">
+
+    <button type="submit">Shorten URL</button>
+  </form>
+
+  <div id="shortUrl"></div>
+
+  <script>
+    document.getElementById('shortenForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const longUrl = document.getElementById('longUrl').value;
+      const customBackHalf = document.getElementById('customBackHalf').value;
+
+      const response = await fetch('/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ longUrl, customBackHalf }),
+      });
+
+      const result = await response.json();
+      displayShortUrl(result.shortUrl);
+    });
+
+    function displayShortUrl(shortUrl) {
+      const shortUrlDiv = document.getElementById('shortUrl');
+      shortUrlDiv.innerHTML = `<p>Short URL: <a href="${shortUrl}" target="_blank">${shortUrl}</a></p>`;
+    }
+  </script>
+</body>
+</html>
