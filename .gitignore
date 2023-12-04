@@ -1,4 +1,8 @@
-*data*.json
-*backup*
-*dev*
 /node_modules
+
+
+*data*.json
+
+index-backup.js
+
+*dev*

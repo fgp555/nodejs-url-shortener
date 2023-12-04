@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Upload</title>
+</head>
+<body>
+  <h2>Upload Image</h2>
+  <form action="/add" method="post" enctype="multipart/form-data">
+    <label for="longUrl">Long URL:</label>
+    <input type="text" name="longUrl" id="longUrl" required>
+    
+    <label for="customBackHalf">Custom Back Half (optional):</label>
+    <input type="text" name="customBackHalf" id="customBackHalf">
+    
+    <label for="image">Image:</label>
+    <input type="file" name="image" id="image" accept="image/*" required>
+    
+    <button type="submit">Upload</button>
+  </form>
+</body>
+</html>

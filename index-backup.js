@@ -28,85 +28,31 @@ async function saveData(data) {
   }
 }
 
-app.get("/data", async (req, res) => {
-  const data = await loadData();
-  res.json(data);
-});
-
-app.post("/reset-visits", async (req, res) => {
-  const data = await loadData();
-  Object.keys(data).forEach((shortUrl) => {
-    data[shortUrl].visits = 0;
-  });
-
-  await saveData(data);
-  res.sendStatus(200);
-});
-
+// GET routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "read.html"));
 });
 
 app.get("/del", (req, res) => {
   res.sendFile(path.join(__dirname, "delete.html"));
 });
 
-app.get("/asdf", (req, res) => {
+app.get("/add", (req, res) => {
   console.log("Accessed /admin route");
-  res.sendFile(path.join(__dirname, "admin.html"));
+  res.sendFile(path.join(__dirname, "add.html"));
 });
 
-app.get("/data-admin", (req, res) => {
+app.get("/data.json", async (req, res) => {
+  const data = await loadData();
+  res.json(data);
+});
+
+app.get("/download", (req, res) => {
   res.download(dataFilePath, "data.json");
 });
 
-app.post("/data-upload", async (req, res) => {
-  try {
-    const uploadedData = req.body;
-
-    if (!uploadedData || typeof uploadedData !== "object") {
-      throw new Error("Invalid data format");
-    }
-
-    await saveData(uploadedData);
-    res.status(200).send("Data uploaded successfully");
-  } catch (error) {
-    console.error("Error uploading data:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-app.get("/upload", (req, res) => {
-  res.sendFile(path.join(__dirname, "upload.html"));
-});
-
-app.post("/shorten", async (req, res) => {
-  const { longUrl, customBackHalf } = req.body;
-  if (!longUrl) {
-    return res.status(400).send("Missing longUrl parameter");
-  }
-
-  const data = await loadData();
-  const shortUrl = customBackHalf || shortid.generate();
-  data[shortUrl] = { longUrl, visits: 0 };
-
-  await saveData(data);
-
-  const shortUrlWithHost = `${req.protocol}://${req.get("host")}/${shortUrl}`;
-  res.json({ shortUrl: shortUrlWithHost });
-});
-
-app.delete("/delete/:shortUrl", async (req, res) => {
-  const { shortUrl } = req.params;
-  const data = await loadData();
-
-  if (data[shortUrl]) {
-    delete data[shortUrl];
-    await saveData(data);
-    res.sendStatus(200);
-  } else {
-    res.status(404).send("Short URL not found");
-  }
+app.get("/update", (req, res) => {
+  res.sendFile(path.join(__dirname, "update.html"));
 });
 
 app.get("/:shortUrl", async (req, res) => {
@@ -124,6 +70,64 @@ app.get("/:shortUrl", async (req, res) => {
   }
 });
 
+// POST routes
+app.post("/reset-visits", async (req, res) => {
+  const data = await loadData();
+  Object.keys(data).forEach((shortUrl) => {
+    data[shortUrl].visits = 0;
+  });
+
+  await saveData(data);
+  res.sendStatus(200);
+});
+
+app.post("/update", async (req, res) => {
+  try {
+    const uploadedData = req.body;
+
+    if (!uploadedData || typeof uploadedData !== "object") {
+      throw new Error("Invalid data format");
+    }
+
+    await saveData(uploadedData);
+    res.status(200).send("Data uploaded successfully");
+  } catch (error) {
+    console.error("Error uploading data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/add", async (req, res) => {
+  const { longUrl, customBackHalf } = req.body;
+  if (!longUrl) {
+    return res.status(400).send("Missing longUrl parameter");
+  }
+
+  const data = await loadData();
+  const shortUrl = customBackHalf || shortid.generate();
+  data[shortUrl] = { longUrl, visits: 0 };
+
+  await saveData(data);
+
+  const shortUrlWithHost = `${req.protocol}://${req.get("host")}/${shortUrl}`;
+  res.json({ shortUrl: shortUrlWithHost });
+});
+
+// DELETE route
+app.delete("/delete/:shortUrl", async (req, res) => {
+  const { shortUrl } = req.params;
+  const data = await loadData();
+
+  if (data[shortUrl]) {
+    delete data[shortUrl];
+    await saveData(data);
+    res.sendStatus(200);
+  } else {
+    res.status(404).send("Short URL not found");
+  }
+});
+
+// 404 and listen
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "404.html"));
 });
